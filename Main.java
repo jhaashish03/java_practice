@@ -1,12 +1,4 @@
-import com.sun.jdi.InvalidTypeException;
-
-import javax.swing.*;
-import java.awt.geom.Ellipse2D;
-import java.math.BigInteger;
-import java.security.PublicKey;
-import java.security.interfaces.EdECKey;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class Main {
 //    static String[] str = {"zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"};
@@ -7877,13 +7869,13 @@ return lis;
         }
         return "Yes";
     }
-   static class Node
+   /*static class Node
     {
         int data;
         Node next;
         Node(int d) {data = d; next = null; }
-    }
-  static   Node removeDuplicates(Node head)
+    }*/
+ /* static   Node removeDuplicates(Node head)
     {
         // Your code here
         Node temp=head;
@@ -7896,6 +7888,453 @@ return lis;
         }
         return head;
     }
+    static class Pair{
+        int length;
+        int index;
+        int value;
+        String psf;
+        Pair(int length,int index,int value,String psf){
+            this.length=length;
+            this.index=index;
+            this.value=value;
+            this.psf=psf;
+        }
+
+    }*/
+   /* public static ArrayList<Integer> longestIncreasingSubsequence(int N, int arr[]){
+        // Code here
+        int[] dp=new int[N];
+        int omax=0;
+        int oi=0;
+
+        for (int i = 0; i <dp.length ; i++) {
+            int max=0;
+            for (int j = 0; j <i ; j++) {
+                if(arr[j]<arr[i]){
+                    if(dp[j]>max){
+                        max=dp[j];
+                    }
+                }
+            }
+            dp[i]=max+1;
+            if(dp[i]>omax){
+                omax=dp[i];
+                oi=i;
+            }
+        }
+
+        Deque<Pair> deque=new ArrayDeque<>();
+        deque.add(new Pair(omax,oi,arr[oi],arr[oi]+""));
+        while (deque.isEmpty()){
+            Pair p=deque.remove();
+            if(p.length==1){
+                System.out.println(p.psf);
+            }
+            for (int i = p.index-1; i >=0 ; i++) {
+                if(dp[i]==p.length-1 && arr[i]<=p.value){
+                    deque.add(new Pair(dp[i],i,arr[i],p.psf+arr[i]+" "));
+                }
+            }
+
+        }
+
+
+    }*/
+   public static int boxStacking(int[][] cuboids) {
+
+       for (int i = 0; i < cuboids.length ; i++) {
+           Arrays.sort(cuboids[i]);
+       }
+       Arrays.sort(cuboids,Comparator.comparingDouble(o->o[0]));
+       printdp(cuboids);
+       int[] dp=new int[cuboids.length];
+       int omax=0;
+       for (int i = cuboids.length-1; i >=0 ; i--) {
+           int max=0;
+           for (int j = cuboids.length-1; j >=i ; j--){
+               if(cuboids[j][0]<=cuboids[i][0] &&  cuboids[j][1]<=cuboids[i][1] &&  cuboids[j][2]<=cuboids[i][2]){
+                  dp[i]=Math.max(dp[i],dp[j]+cuboids[i][2]);
+               }
+           }
+           omax=Math.max(dp[i],omax);
+
+       }
+       return omax;
+   }
+    static class Box implements Comparable<Box>{
+       int h,w,l,area;
+       Box(int h,int w,int l){
+           this.h=h;
+           this.w=w;
+           this.l=l;
+       }
+
+        @Override
+        public int compareTo(Box o) {
+            return o.area-this.area;
+        }
+    }
+    public static int maximumStackHeight(Box[] arr,int n){
+       Box[] rotations=new Box[3*n];
+        for (int i = 0; i < n; i++) {
+            Box b=arr[i];
+            rotations[3*i]=new Box(b.h,Math.max(b.w,b.l),Math.min(b.w,b.l));
+            rotations[3*i+1]=new Box(b.w,Math.max(b.h,b.l),Math.min(b.h,b.l));
+            rotations[3*i+2]=new Box(b.l,Math.max(b.h,b.w),Math.min(b.h,b.w));
+        }
+        for (int i = 0; i <rotations.length ; i++) {
+            rotations[i].area=rotations[i].w*rotations[i].l;
+        }
+        Arrays.sort(rotations);
+        int[] msh=new int[rotations.length];
+
+int omax=0;
+        for (int i = 0; i <msh.length; i++) {
+
+            int max=0;
+            Box box=arr[i];
+            for (int j = 0; j <i ; j++) {
+                Box prev=arr[j];
+            if(prev.w<box.w && prev.l<box.l){
+                if(msh[j]>max){
+                    max=msh[j];
+                }
+            }
+
+            }
+            msh[i]=max+box.h;
+            if(omax>msh[i]){
+                omax=msh[i];
+            }
+        }
+        return omax;
+    }
+    public static int maxHeight(int[] height, int[] width, int[] length, int n)
+    {
+        Box[] arr=new Box[n];
+        for (int i = 0; i <n ; i++) {
+            arr[i]=new Box(height[i],width[i],length[i]);
+        }
+        return maximumStackHeight(arr,n);
+        }
+
+    public static boolean isValidIndex(int[][] matrix,int x,int y){
+        return (x>=0 && x<matrix.length) && (y>=0 && y<matrix[0].length);
+    }
+    public static int lipUtil(int[][] matrix,int[] row,int[] col,int i,int j,int[][] dp){
+        if(dp[i][j]!=-1){
+            return dp[i][j];
+        }
+
+
+        for (int k = 0; k <4 ; k++) {
+            if(isValidIndex(matrix,i+row[k],j+col[k]) && matrix[i][j]<matrix[i+row[k]][j+col[k]]){
+                dp[i][j]=Math.max(dp[i][j],lipUtil(matrix,row,col,i+row[k],j+col[k],dp));
+
+            }
+        }
+        return ++dp[i][j];
+    }
+    public static int longestIncreasingPath(int matrix[][], int n, int m) {
+        int[] row={-1,0,1,0};
+        int[] col={0,1,0,-1};
+        int max=0;
+        int[][] dp=new int[matrix.length][matrix[0].length];
+        for (int i = 0; i <dp.length ; i++) {
+            for (int j = 0; j <dp[0].length ; j++) {
+                dp[i][j]=-1;
+            }
+        }
+        for (int i = 0; i <matrix.length ; i++) {
+            for (int j = 0; j <matrix[0].length ; j++) {
+                max=Math.max(max,1+lipUtil(matrix,row,col,i,j,dp));
+            }
+        }
+        return max;
+    }
+
+    public static Node reverseLL(Node head){
+       Node prev=null;
+       Node cur=head;
+       Node next=null;
+       while(cur!=null){
+           next=cur.next;
+           cur.next=prev;
+           prev=cur;
+           cur=next;
+
+       }
+       return prev;
+    }
+    public static Node compute(Node head)
+    {
+       head=reverseLL(head);
+       Node cur=head;
+       Node prev=head;
+       head=prev.next;
+       int maxValue=head.data;
+       while(head!=null){
+           if(head.data<maxValue){
+
+               prev.next=head.next;
+               head=prev.next;
+
+           } else {
+               prev=head;
+               head=head.next;
+               maxValue=prev.data;
+           }
+       }
+       return reverseLL(cur);
+    }
+    public int maxProfit(int[] prices) {
+        int buy=Integer.MAX_VALUE;
+        int profit=0;
+        for (int i = 0; i < prices.length ; i++) {
+            if(prices[i]<buy){
+                buy=prices[i];
+            } else {
+                profit=Math.max(profit,prices[i]-buy);
+            }
+        }
+        return profit;
+    }
+
+    Node deleteNode(Node head, int x)
+    {
+        if(x==1){
+            return head.next;
+        }
+        Node cur=head;
+        Node prev=null;
+        int i=1;
+        while(i!=x){
+            prev=cur;
+            cur=cur.next;
+
+            i++;
+        }
+
+        prev.next=cur.next;
+        return head;
+    }
+
+    boolean isPalindrome(Node head)
+    {
+        Node slow=head;
+        Node fast=head;
+        while (fast!=null && fast.next!=null){
+            slow=slow.next;
+            fast=fast.next.next;
+        }
+
+        Node cur=slow;
+        Node prev=null;
+        Node next=null;
+        prev=reverseLL(cur);
+
+        Node left=head;
+        Node right=prev;
+        while(right!=null){
+            if(left.data!=right.data){
+                return false;
+            }
+            left=left.next;
+            right=right.next;
+
+        }
+        return true;
+    }
+    public static boolean detectLoop(Node head){
+        // Add code here
+        Node slow=head;
+        Node fast=head;
+        while (fast!=null && fast.next!=null){
+            slow=slow.next;
+            fast=fast.next.next;
+            if(slow.equals(fast)){
+                return true;
+                break;
+            }
+
+
+        }
+        return false;
+    }
+    public static void removeLoop(Node head){
+        // code here
+        // remove the loop without losing any nodes
+       boolean cycle=false;
+        Node slow=head;
+        Node fast=head;
+        while (fast!=null && fast.next!=null){
+            slow=slow.next;
+            fast=fast.next.next;
+            if(slow.equals(fast)){
+               cycle=true;
+                break;
+            }
+
+
+        }
+        if(cycle) {
+            slow = head;
+
+            if (slow != fast) {
+                while (fast!= slow) {
+
+                    slow = slow.next;
+                    fast = fast.next;
+                }
+                fast.next = null;
+            } else {
+                while (fast.next != slow) {
+                    fast = fast.next;
+                }
+                fast.next = null;
+            }
+
+
+        }
+    }
+    public static int buySellStock(int[] prices){
+    int[][] dp=new int[prices.length+1][2];
+        for (int i=dp.length-1;i>=0;i++) {
+            int profit=0;
+            for (int buy = 0; buy <=1 ; buy++) {
+                if(buy==1){
+                    profit=Math.max(-prices[i]+dp[i+1][0],dp[i+1][1]);
+
+                } else {
+                    profit=Math.max(-prices[i]+dp[i+1][1],dp[i+1][0]);
+
+                }
+                dp[i][buy]=profit;
+            }
+        }
+
+
+
+        return dp[0][1];
+    }
+    public static int maxProfit1(int[] prices) {
+
+    return buySellStock(prices);
+    }
+    public static  Node inorderSuccessor(Node root){
+        Node temp=root;
+        while (temp.left!=null){
+            temp=temp.left;
+        }
+        return temp;
+    }
+
+    public static int height(Node root){
+        if(root==null){
+            return 0;
+        }
+        return root.height;
+    }
+    static int max(int a, int b)
+    {
+        return (a > b) ? a : b;
+    }
+    public static int getBalanceFactor(Node root){
+        if(root==null){
+            return 0;
+        }
+        return height(root.left) -height(root.right);
+    }
+    public static Node rightRotate(Node y){
+        Node x = y.left;
+        Node T2 = x.right;
+
+        // Perform rotation
+        x.right = y;
+        y.left = T2;
+
+        // Update heights
+        y.height = max(height(y.left), height(y.right)) + 1;
+        x.height = max(height(x.left), height(x.right)) + 1;
+
+        // Return new root
+        return x;
+    }
+    public static Node leftRotate(Node x){
+        Node y = x.right;
+        Node T2 = y.left;
+
+        // Perform rotation
+        y.left = x;
+        x.right = T2;
+
+        // Update heights
+        x.height = max(height(x.left), height(x.right)) + 1;
+        y.height = max(height(y.left), height(y.right)) + 1;
+
+        // Return new root
+        return y;
+    }
+    public static Node deleteNode(Node root, int key)
+    {
+        // code here.
+        if(root==null){
+            return root;
+
+        }
+        if(key< root.data){
+            root.left=deleteNode(root.left,key);
+        } else if(key>root.data){
+            root.right=deleteNode(root.right,key);
+        } else {
+            if(root.left==null || root.right==null){
+                Node temp=null;
+                if(temp==root.left){
+                    temp=root.right;
+                } else {
+                    temp=root.left;
+                }
+
+                if(temp==null){
+                    temp=root;
+                    root=null;
+
+
+                } else {
+                    root=temp;
+                }
+            } else {
+                Node inorderSuccess=inorderSuccessor(root.right);
+                root.data=inorderSuccess.data;
+                root.right=deleteNode(root.right,inorderSuccess.data);
+            }
+
+        }
+        if(root==null){
+            return root;
+        }
+        root.height=Math.max(height(root.left),height(root.right))+1;
+        int bf=getBalanceFactor(root);
+
+
+
+        if(bf>1 && getBalanceFactor(root.left)>=0){
+            return rightRotate(root);
+        }
+        if(bf< -1 && getBalanceFactor(root.right)<=0){
+            return leftRotate(root);
+        }
+        if(bf>1 && getBalanceFactor(root.left)<0){
+            root.left=leftRotate(root.left);
+            return rightRotate(root);
+        }
+        if(bf< -1 && getBalanceFactor(root.right)>0){
+            root.right=rightRotate(root.right);
+            return leftRotate(root);
+        }
+        return root;
+    }
+
     public static void main(String[] args) {
             //     Scanner sc=new Scanner(System.in);
             //     System.out.println("Enter the number of rows");
@@ -9298,7 +9737,11 @@ root.leftChild.leftChild=new Node(6);
       /*  int[] nums={2,1,1,5,6,2,3,1};
         System.out.println(minimumMountainRemovalsUtil(nums));*/
 //        System.out.println(reverseWord("Ashish"));
-        System.out.println(flipCoins(8,"11001100"));
+//        System.out.println(flipCoins(8,"11001100"));
+        int[][] cuboids={
+                {50,45,20},{95,37,53},{45,23,12}
+        };
+        System.out.println(boxStacking(cuboids));
     }
 
 
